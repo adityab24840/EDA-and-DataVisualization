@@ -129,13 +129,13 @@ def main():
 
     
     st.sidebar.header("About")
-    st.sidebar.info("Mehul Anshumali")
+    st.sidebar.info("Aditya N Bhatt")
+    st.sidebar.text("231057017")
+    st.sidebar.text("AI & ML")
+    st.sidebar.text("MSIS")
+    github_repo = "https://github.com/adityab24840/EDA-and-DataVisualization/" 
+    st.sidebar.markdown(f"[GitHub Repository]({github_repo})")	
     st.sidebar.text("Built with Streamlit")
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
