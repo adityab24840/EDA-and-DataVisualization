@@ -2,6 +2,8 @@ import seaborn as sns
 import streamlit as st
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+st.pyplot(plt.gcf())
 
 # Set the page title and subheader
 st.title("ML DataSet Explorer & Data Visualization")
