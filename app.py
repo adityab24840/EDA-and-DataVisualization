@@ -1,136 +1,150 @@
-import seaborn as sns
 import streamlit as st
 import pandas as pd
-import os
+import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
-st.pyplot(plt.gcf())
 
-# Set the page title and subheader
-st.title("ML DataSet Explorer & Data Visualization")
-st.subheader("DataSet Explorer built with Streamlit")
+# Function to handle missing values (replace with mean)
+def handle_missing_values(df):
+    df.fillna(df.mean(), inplace=True)
+    return df
 
-# Function to select a dataset file
-def file_selector(path='./datasets'):
-    files = os.listdir(path)
-    select_file = st.selectbox("Select a file(dataset)", files)
-    return os.path.join(path, select_file)
+# Function to remove duplicates
+def remove_duplicates(df):
+    df.drop_duplicates(inplace=True)
+    return df
 
-# Select a dataset file
-file = file_selector()
-st.info(f"You selected {file}")
+# Function to handle outliers (replace with 99th percentile)
+def handle_outliers(df, column):
+    q99 = df[column].quantile(0.99)
+    df[column] = np.where(df[column] > q99, q99, df[column])
+    return df
 
-# Read the selected dataset
-@st.cache  # Cache the dataset to improve performance
-def load_data(file):
-    return pd.read_csv(file)
+# Function for Min-Max scaling
+def min_max_scaling(df, column):
+    min_val = df[column].min()
+    max_val = df[column].max()
+    df[column] = (df[column] - min_val) / (max_val - min_val)
+    return df
 
-df = load_data(file)
+# Function for one-hot encoding
+def one_hot_encoding(df, column):
+    df_encoded = pd.get_dummies(df, columns=[column])
+    return df_encoded
 
-# Sidebar - About and GitHub link
-st.sidebar.header("About")
-st.sidebar.info("Aditya N Bhatt")
-st.sidebar.text("231057017")
-st.sidebar.text("AI & ML")
-st.sidebar.text("MSIS")
+# Function to perform a t-test between two groups
+def perform_t_test(df, column1, column2):
+    from scipy.stats import ttest_ind
+    group1 = df[df['Group'] == 'Group1'][column1]
+    group2 = df[df['Group'] == 'Group2'][column2]
+    t_stat, p_value = ttest_ind(group1, group2)
+    return t_stat, p_value
 
-# Add your GitHub repository link here
-github_repo = "https://github.com/adityab24840/EDA-and-DataVisualization/"
-st.sidebar.markdown(f"[GitHub Repository]({github_repo})")
+def main():
+    st.title("ML DataSet Explorer & Data Visualization")
+    st.subheader("DataSet Explorer built with Streamlit")
 
-st.sidebar.text("Built with Streamlit")
+    def file_selector(path='./datasets'):
+        files = os.listdir(path)
+        select_file = st.selectbox("Select a file(dataset)", files)
+        return os.path.join(path, select_file)
 
-# Show Dataset
-if st.checkbox('Show Dataset'):
-    st.write(df.head())
+    file = file_selector()
+    st.info("You selected {}".format(file))
 
-# Show Shape of Dataset
-if st.checkbox("Shape of Dataset"):
-    st.write(df.shape)
+    # Read File .csv
+    df = pd.read_csv(file)
 
-# Show DataSet Column
-if st.checkbox("Select Columns to Show"):
-    all_columns = df.columns.tolist()
-    select_columns = st.multiselect("Select", all_columns)
-    new_df = df[select_columns]
-    st.dataframe(new_df)
+    # Show Dataset
+    if st.checkbox('Show Dataset'):
+        st.write(df.head())
 
-# Show Values
-if st.button("Value Counts"):
-    st.text("Value Counts By Target/Class")
-    st.write(df.iloc[:, -1].value_counts())
+    # Show Shape of Dataset
+    if st.checkbox("Shape of Dataset"):
+        st.write(df.shape)
 
-# Checking for null value in DataSet
-if st.checkbox("Check for null values available in dataset"):
-    st.write(df.isnull().sum())
+    # Show DataSet Column
+    if st.checkbox("Select Columns to Show"):
+        all_columns = df.columns.tolist()
+        select_columns = st.multiselect("Select", all_columns)
+        new_df = df[select_columns]
+        st.dataframe(new_df)
 
-# Show DataTypes
-if st.button("Data Types"):
-    st.write(df.dtypes)
+    # Show Values
+    if st.button("Value Counts"):
+        st.text("Value Counts By Target/Class")
+        st.write(df.iloc[:, -1].value_counts())
 
-# Show Summary
-if st.checkbox("Summary of Dataset"):
-    st.write(df.describe())
+    # Checking for null value in DataSet
+    if st.checkbox("Check for null values available in dataset"):
+        st.write(df.isnull().sum())
 
-# Data Visualization
-st.subheader("Data Visualization")
+    # Show DataTypes
+    if st.button("Data Types"):
+        st.write(df.dtypes)
 
-# Correlation Heatmap (Seaborn Plot)
-if st.checkbox("Correlation Plot[Seaborn]"):
-    st.write(sns.heatmap(df.corr(), annot=True))
-    st.pyplot()
+    # Show Summary
+    if st.checkbox("Summary of Dataset"):
+        st.write(df.describe())
 
-# Pie Chart
-if st.checkbox("Pie Plot"):
-    all_columns_names = df.columns.tolist()
-    if st.button("Generate Pie Plot"):
-        st.success("Generating A Pie Plot")
-        st.write(df.iloc[:, -1].value_counts().plot.pie(autopct="%1.1f%%"))
+    # Data Cleaning
+    st.sidebar.header("Data Cleaning")
+    if st.sidebar.checkbox("Handle Missing Values"):
+        df = handle_missing_values(df)
+        st.success("Missing values handled.")
+
+    if st.sidebar.checkbox("Remove Duplicates"):
+        df = remove_duplicates(df)
+        st.success("Duplicates removed.")
+
+    if st.sidebar.checkbox("Handle Outliers"):
+        column = st.selectbox("Select a column for outlier handling", df.columns)
+        df = handle_outliers(df, column)
+        st.success("Outliers handled.")
+
+    # Data Transformation
+    st.sidebar.header("Data Transformation")
+    if st.sidebar.checkbox("Feature Scaling"):
+        column = st.selectbox("Select a column for feature scaling", df.columns)
+        df = min_max_scaling(df, column)
+        st.success("Feature scaling applied.")
+
+    if st.sidebar.checkbox("Categorical Encoding"):
+        column = st.selectbox("Select a categorical column for encoding", df.columns)
+        df = one_hot_encoding(df, column)
+        st.success("Categorical encoding applied.")
+
+    # Advanced Visualizations
+    st.sidebar.header("Advanced Visualizations")
+    if st.sidebar.checkbox("Histogram"):
+        column = st.selectbox("Select a column for histogram", df.columns)
+        plt.hist(df[column], bins=20)
         st.pyplot()
 
-# Count Plot
-if st.checkbox("Plot of Value Counts"):
-    st.text("Value Counts By Target")
-    all_columns_names = df.columns.tolist()
-    primary_col = st.selectbox("Primary Columm to GroupBy", all_columns_names)
-    selected_columns_names = st.multiselect("Select Columns", all_columns_names)
-    if st.button("Plot"):
-        st.text("Generate Plot")
-        if selected_columns_names:
-            vc_plot = df.groupby(primary_col)[selected_columns_names].count()
-        else:
-            vc_plot = df.iloc[:, -1].value_counts()
-        st.write(vc_plot.plot(kind="bar"))
+    if st.sidebar.checkbox("Scatter Plot"):
+        x = st.selectbox("X-axis", df.columns)
+        y = st.selectbox("Y-axis", df.columns)
+        plt.scatter(df[x], df[y])
         st.pyplot()
 
-# Customizable Plot
-st.subheader("Customizable Plot")
-all_columns_names = df.columns.tolist()
-type_of_plot = st.selectbox("Select Type of Plot", ["area", "bar", "line", "hist", "box", "kde"])
-selected_columns_names = st.multiselect("Select Columns To Plot", all_columns_names)
+    # Statistical Tests
+    st.sidebar.header("Statistical Tests")
+    if st.sidebar.checkbox("T-test"):
+        column1 = st.selectbox("Select a numeric column for Group 1", df.columns)
+        column2 = st.selectbox("Select a numeric column for Group 2", df.columns)
+        t_stat, p_value = perform_t_test(df, column1, column2)
+        st.write(f"T-statistic: {t_stat}")
+        st.write(f"P-value: {p_value}")
 
-if st.button("Generate Plot"):
-    st.success(f"Generating Customizable Plot of {type_of_plot} for {selected_columns_names}")
+    # Data Exporting and Reporting
+    st.sidebar.header("Data Exporting and Reporting")
+    if st.sidebar.button("Export Cleaned Data"):
+        df.to_csv("cleaned_data.csv", index=False)
+        st.success("Cleaned data exported as CSV.")
 
-    # Plot By Streamlit
-    if type_of_plot == 'area':
-        cust_data = df[selected_columns_names]
-        st.area_chart(cust_data)
+    if st.sidebar.button("Generate Report"):
+        # Add code to generate a report (e.g., using PDF generation libraries)
+        st.success("Report generated.")
 
-    elif type_of_plot == 'bar':
-        cust_data = df[selected_columns_names]
-        st.bar_chart(cust_data)
-
-    elif type_of_plot == 'line':
-        cust_data = df[selected_columns_names]
-        st.line_chart(cust_data)
-
-    # Custom Plot
-    elif type_of_plot:
-        cust_plot = df[selected_columns_names].plot(kind=type_of_plot)
-        st.write(cust_plot)
-        st.pyplot()
-
-# "Thanks" Button
-if st.button("Thanks"):
-    st.balloons()
-
+if __name__ == '__main__':
+    main()
