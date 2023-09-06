@@ -4,42 +4,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Function to handle missing values (replace with mean)
-def handle_missing_values(df):
-    df.fillna(df.mean(), inplace=True)
-    return df
-
-# Function to remove duplicates
-def remove_duplicates(df):
-    df.drop_duplicates(inplace=True)
-    return df
-
-# Function to handle outliers (replace with 99th percentile)
-def handle_outliers(df, column):
-    q99 = df[column].quantile(0.99)
-    df[column] = np.where(df[column] > q99, q99, df[column])
-    return df
-
-# Function for Min-Max scaling
-def min_max_scaling(df, column):
-    min_val = df[column].min()
-    max_val = df[column].max()
-    df[column] = (df[column] - min_val) / (max_val - min_val)
-    return df
-
-# Function for one-hot encoding
-def one_hot_encoding(df, column):
-    df_encoded = pd.get_dummies(df, columns=[column])
-    return df_encoded
-
-# Function to perform a t-test between two groups
-def perform_t_test(df, column1, column2):
-    from scipy.stats import ttest_ind
-    group1 = df[df['Group'] == 'Group1'][column1]
-    group2 = df[df['Group'] == 'Group2'][column2]
-    t_stat, p_value = ttest_ind(group1, group2)
-    return t_stat, p_value
-
 def main():
     st.title("ML DataSet Explorer & Data Visualization")
     st.subheader("DataSet Explorer built with Streamlit")
@@ -88,6 +52,44 @@ def main():
         st.write(df.describe())
 
     # Data Cleaning
+
+    # Function to handle missing values (replace with mean)
+    def handle_missing_values(df):
+        df.fillna(df.mean(), inplace=True)
+        return df
+
+    # Function to remove duplicates
+    def remove_duplicates(df):
+        df.drop_duplicates(inplace=True)
+        return df
+
+    # Function to handle outliers (replace with 99th percentile)
+    def handle_outliers(df, column):
+        q99 = df[column].quantile(0.99)
+        df[column] = np.where(df[column] > q99, q99, df[column])
+        return df
+
+    # Function for Min-Max scaling
+    def min_max_scaling(df, column):
+        min_val = df[column].min()
+        max_val = df[column].max()
+        df[column] = (df[column] - min_val) / (max_val - min_val)
+        return df
+
+    # Function for one-hot encoding
+    def one_hot_encoding(df, column):
+        df_encoded = pd.get_dummies(df, columns=[column])
+        return df_encoded
+
+    # Function to perform a t-test between two groups
+    def perform_t_test(df, column1, column2):
+        from scipy.stats import ttest_ind
+        group1 = df[df['Group'] == 'Group1'][column1]
+        group2 = df[df['Group'] == 'Group2'][column2]
+        t_stat, p_value = ttest_ind(group1, group2)
+        return t_stat, p_value
+
+
     st.sidebar.header("Data Cleaning")
     if st.sidebar.checkbox("Handle Missing Values"):
         df = handle_missing_values(df)
@@ -138,11 +140,11 @@ def main():
 
     # Data Exporting and Reporting
     st.sidebar.header("Data Exporting and Reporting")
-    if st.sidebar.button("Export Cleaned Data"):
+    if st.sidebar.checkbox("Export Cleaned Data"):
         df.to_csv("cleaned_data.csv", index=False)
         st.success("Cleaned data exported as CSV.")
 
-    if st.sidebar.button("Generate Report"):
+    if st.sidebar.checkbox("Generate Report"):
         # Add code to generate a report (e.g., using PDF generation libraries)
         st.success("Report generated.")
 
