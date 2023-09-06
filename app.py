@@ -89,7 +89,7 @@ def main():
         st.write(df.describe())
 
     # Data Cleaning
-    st.sidebar.header("Data Cleaning")
+    st.sidebar.title("Data Cleaning")
     if st.sidebar.checkbox("Handle Missing Values"):
         df = handle_missing_values(df)
         st.success("Missing values handled.")
@@ -104,7 +104,7 @@ def main():
         st.success("Outliers handled.")
 
     # Data Transformation
-    st.sidebar.header("Data Transformation")
+    st.sidebar.title("Data Transformation")
     if st.sidebar.checkbox("Feature Scaling"):
         column = st.selectbox("Select a column for feature scaling", df.columns)
         df = min_max_scaling(df, column)
@@ -116,7 +116,7 @@ def main():
         st.success("Categorical encoding applied.")
 
     # Advanced Visualizations
-    st.sidebar.header("Advanced Visualizations")
+    st.sidebar.title("Advanced Visualizations")
     if st.sidebar.checkbox("Histogram"):
         column = st.selectbox("Select a column for histogram", df.columns)
         plt.hist(df[column], bins=20)
@@ -129,7 +129,7 @@ def main():
         st.pyplot()
 
     # Statistical Tests
-    st.sidebar.header("Statistical Tests")
+    st.sidebar.title("Statistical Tests")
     if st.sidebar.checkbox("T-test"):
         column1 = st.selectbox("Select a numeric column for Group 1", df.columns)
         column2 = st.selectbox("Select a numeric column for Group 2", df.columns)
@@ -138,7 +138,7 @@ def main():
         st.write(f"P-value: {p_value}")
 
     # Data Exporting and Reporting
-    st.sidebar.header("Data Exporting and Reporting")
+    st.sidebar.title("Data Exporting and Reporting")
     if st.sidebar.checkbox("Export Cleaned Data"):
         df.to_csv("cleaned_data.csv", index=False)
         st.success("Cleaned data exported as CSV.")
