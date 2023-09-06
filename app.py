@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os 
 
 # Function to handle missing values (replace with mean)
 def handle_missing_values(df):
