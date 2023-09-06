@@ -89,48 +89,44 @@ def main():
         st.write(df.describe())
 
     # Data Cleaning
-    st.sidebar.title("Data Cleaning")
-    if st.sidebar.checkbox("Handle Missing Values"):
+    if st.checkbox("Handle Missing Values"):
         df = handle_missing_values(df)
         st.success("Missing values handled.")
 
-    if st.sidebar.checkbox("Remove Duplicates"):
+    if st.checkbox("Remove Duplicates"):
         df = remove_duplicates(df)
         st.success("Duplicates removed.")
 
-    if st.sidebar.checkbox("Handle Outliers"):
+    if st.checkbox("Handle Outliers"):
         column = st.selectbox("Select a column for outlier handling", df.columns)
         df = handle_outliers(df, column)
         st.success("Outliers handled.")
 
     # Data Transformation
-    st.sidebar.title("Data Transformation")
-    if st.sidebar.checkbox("Feature Scaling"):
+    if st.checkbox("Feature Scaling"):
         column = st.selectbox("Select a column for feature scaling", df.columns)
         df = min_max_scaling(df, column)
         st.success("Feature scaling applied.")
 
-    if st.sidebar.checkbox("Categorical Encoding"):
+    if st.checkbox("Categorical Encoding"):
         column = st.selectbox("Select a categorical column for encoding", df.columns)
         df = one_hot_encoding(df, column)
         st.success("Categorical encoding applied.")
 
     # Advanced Visualizations
-    st.sidebar.title("Advanced Visualizations")
-    if st.sidebar.checkbox("Histogram"):
+    if st.checkbox("Histogram"):
         column = st.selectbox("Select a column for histogram", df.columns)
         plt.hist(df[column], bins=20)
         st.pyplot()
 
-    if st.sidebar.checkbox("Scatter Plot"):
+    if st.checkbox("Scatter Plot"):
         x = st.selectbox("X-axis", df.columns)
         y = st.selectbox("Y-axis", df.columns)
         plt.scatter(df[x], df[y])
         st.pyplot()
 
     # Statistical Tests
-    st.sidebar.title("Statistical Tests")
-    if st.sidebar.checkbox("T-test"):
+    if st.checkbox("T-test"):
         column1 = st.selectbox("Select a numeric column for Group 1", df.columns)
         column2 = st.selectbox("Select a numeric column for Group 2", df.columns)
         t_stat, p_value = perform_t_test(df, column1, column2)
@@ -138,12 +134,11 @@ def main():
         st.write(f"P-value: {p_value}")
 
     # Data Exporting and Reporting
-    st.sidebar.title("Data Exporting and Reporting")
-    if st.sidebar.checkbox("Export Cleaned Data"):
+    if st.checkbox("Export Cleaned Data"):
         df.to_csv("cleaned_data.csv", index=False)
         st.success("Cleaned data exported as CSV.")
 
-    if st.sidebar.checkbox("Generate Report"):
+    if st.checkbox("Generate Report"):
         # Add code to generate a report (e.g., using PDF generation libraries)
         st.success("Report generated.")
 
