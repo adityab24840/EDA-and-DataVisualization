@@ -1,10 +1,10 @@
 
 # ML DataSet Explorer & Data Visualization with Streamlit
+## Link : https://edavisual.streamlit.app/
 
  Table of Contents
 
 -  [ML DataSet Explorer & Data Visualization with Streamlit](#ml-dataset-explorer--data-visualization-with-streamlit)
-  - [Streamlit Link}(#link)  
   - [Features](#features)
   - [Usage](#usage)
   - [Author](#author)
@@ -16,7 +16,7 @@
 
 Explore and visualize your datasets interactively with this Streamlit application. This app allows you to select a dataset, view its contents, explore data statistics, and generate various types of plots. It's built with Streamlit, a Python library for creating web applications with ease.
 
-## Link : https://edavisual.streamlit.app/
+
 
 ## Features
 
