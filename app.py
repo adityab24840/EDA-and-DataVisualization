@@ -92,26 +92,31 @@ def main():
     if st.checkbox("Handle Missing Values"):
         df = handle_missing_values(df)
         st.success("Missing values handled.")
+        st.write(df.head())  # Show the modified DataFrame
 
     if st.checkbox("Remove Duplicates"):
         df = remove_duplicates(df)
         st.success("Duplicates removed.")
+        st.write(df.head())  # Show the modified DataFrame
 
     if st.checkbox("Handle Outliers"):
         column = st.selectbox("Select a column for outlier handling", df.columns)
         df = handle_outliers(df, column)
         st.success("Outliers handled.")
+        st.write(df.head())  # Show the modified DataFrame
 
     # Data Transformation
     if st.checkbox("Feature Scaling"):
         column = st.selectbox("Select a column for feature scaling", df.columns)
         df = min_max_scaling(df, column)
         st.success("Feature scaling applied.")
+        st.write(df.head())  # Show the modified DataFrame
 
     if st.checkbox("Categorical Encoding"):
         column = st.selectbox("Select a categorical column for encoding", df.columns)
         df = one_hot_encoding(df, column)
         st.success("Categorical encoding applied.")
+        st.write(df.head())  # Show the modified DataFrame
 
     # Advanced Visualizations
     if st.checkbox("Histogram"):
