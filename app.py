@@ -43,8 +43,9 @@ def main():
     if st.button("Generate Pandas Profiling Report"):
         st.text("Generating Pandas Profiling Report. This may take a while...")
         profile = ProfileReport(df, explorative=True)
-        st_profile_report(profile)
-
+        
+        # Display the report using st.write()
+        st.write(profile.to_widgets())
 
 if __name__ == '__main__':
     main()
