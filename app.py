@@ -1,47 +1,15 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
+import streamlit as st
+import numpy as np
+import pandas as pd
 import os
-
-# Function to handle missing values (replace with mean)
-def handle_missing_values(df):
-    df.fillna(df.mean(), inplace=True)
-    return df
-
-# Function to remove duplicates
-def remove_duplicates(df):
-    df.drop_duplicates(inplace=True)
-    return df
-
-# Function to handle outliers (replace with 99th percentile)
-def handle_outliers(df, column):
-    q99 = df[column].quantile(0.99)
-    df[column] = np.where(df[column] > q99, q99, df[column])
-    return df
-
-# Function for Min-Max scaling
-def min_max_scaling(df, column):
-    min_val = df[column].min()
-    max_val = df[column].max()
-    df[column] = (df[column] - min_val) / (max_val - min_val)
-    return df
-
-# Function for one-hot encoding
-def one_hot_encoding(df, column):
-    df_encoded = pd.get_dummies(df, columns=[column])
-    return df_encoded
-
-# Function to perform a t-test between two groups
-def perform_t_test(df, column1, column2):
-    from scipy.stats import ttest_ind
-    group1 = df[df['Group'] == 'Group1'][column1]
-    group2 = df[df['Group'] == 'Group2'][column2]
-    t_stat, p_value = ttest_ind(group1, group2)
-    return t_stat, p_value
+import matplotlib.pyplot as plt
+import matplotlib
+import pandas_profiling 
+matplotlib.use('Agg')
 
 def main():
+    """ Machine Learning DataSet Explorer & Data Visualization """
     st.title("ML DataSet Explorer & Data Visualization")
     st.subheader("DataSet Explorer built with Streamlit")
 
@@ -84,68 +52,86 @@ def main():
     if st.button("Data Types"):
         st.write(df.dtypes)
 
-    # Summary of Dataset
+    # Show Summary
     if st.checkbox("Summary of Dataset"):
         st.write(df.describe())
 
-    # Data Cleaning
-    if st.checkbox("Handle Missing Values"):
-        df = handle_missing_values(df)
-        st.success("Missing values handled.")
-        st.write(df.head())  # Show the modified DataFrame
-
-    if st.checkbox("Remove Duplicates"):
-        df = remove_duplicates(df)
-        st.success("Duplicates removed.")
-        st.write(df.head())  # Show the modified DataFrame
-
-    if st.checkbox("Handle Outliers"):
-        column = st.selectbox("Select a column for outlier handling", df.columns)
-        df = handle_outliers(df, column)
-        st.success("Outliers handled.")
-        st.write(df.head())  # Show the modified DataFrame
-
-    # Data Transformation
-    if st.checkbox("Feature Scaling"):
-        column = st.selectbox("Select a column for feature scaling", df.columns)
-        df = min_max_scaling(df, column)
-        st.success("Feature scaling applied.")
-        st.write(df.head())  # Show the modified DataFrame
-
-    if st.checkbox("Categorical Encoding"):
-        column = st.selectbox("Select a categorical column for encoding", df.columns)
-        df = one_hot_encoding(df, column)
-        st.success("Categorical encoding applied.")
-        st.write(df.head())  # Show the modified DataFrame
-
-    # Advanced Visualizations
-    if st.checkbox("Histogram"):
-        column = st.selectbox("Select a column for histogram", df.columns)
-        plt.hist(df[column], bins=20)
+    # Plot and Visualization
+    st.subheader("Data Visualization")
+    # Corelation
+    # Seaborn Plot
+    if st.checkbox("Correlation Plot[Seaborn]"):
+        st.write(sns.heatmap(df.corr(), annot=True))
         st.pyplot()
 
-    if st.checkbox("Scatter Plot"):
-        x = st.selectbox("X-axis", df.columns)
-        y = st.selectbox("Y-axis", df.columns)
-        plt.scatter(df[x], df[y])
-        st.pyplot()
+    # Pie Chart
+    if st.checkbox("Pie Plot"):
+        all_columns_names = df.columns.tolist()
+        if st.button("Generate Pie Plot"):
+            st.success("Generating A Pie Plot")
+            st.write(df.iloc[:, -1].value_counts().plot.pie(autopct="%1.1f%%"))
+            st.pyplot()
 
-    # Statistical Tests
-    if st.checkbox("T-test"):
-        column1 = st.selectbox("Select a numeric column for Group 1", df.columns)
-        column2 = st.selectbox("Select a numeric column for Group 2", df.columns)
-        t_stat, p_value = perform_t_test(df, column1, column2)
-        st.write(f"T-statistic: {t_stat}")
-        st.write(f"P-value: {p_value}")
+    # Count Plot
+    if st.checkbox("Plot of Value Counts"):
+        st.text("Value Counts By Target")
+        all_columns_names = df.columns.tolist()
+        primary_col = st.selectbox("Primary Column to GroupBy", all_columns_names)
+        selected_columns_names = st.multiselect("Select Columns", all_columns_names)
+        if st.button("Plot"):
+            st.text("Generate Plot")
+            if selected_columns_names:
+                vc_plot = df.groupby(primary_col)[selected_columns_names].count()
+            else:
+                vc_plot = df.iloc[:, -1].value_counts()
+            st.write(vc_plot.plot(kind="bar"))
+            st.pyplot()
 
-    # Data Exporting and Reporting
-    if st.checkbox("Export Cleaned Data"):
-        df.to_csv("cleaned_data.csv", index=False)
-        st.success("Cleaned data exported as CSV.")
+    # Customizable Plot
+    st.subheader("Customizable Plot")
+    all_columns_names = df.columns.tolist()
+    type_of_plot = st.selectbox("Select Type of Plot", ["area", "bar", "line", "hist", "box", "kde"])
+    selected_columns_names = st.multiselect("Select Columns To Plot", all_columns_names)
 
-    if st.checkbox("Generate Report"):
-        # Add code to generate a report (e.g., using PDF generation libraries)
-        st.success("Report generated.")
+    if st.button("Generate Plot"):
+        st.success("Generating Customizable Plot of {} for {}".format(type_of_plot, selected_columns_names))
+
+        # Plot By Streamlit
+        if type_of_plot == 'area':
+            cust_data = df[selected_columns_names]
+            st.area_chart(cust_data)
+
+        elif type_of_plot == 'bar':
+            cust_data = df[selected_columns_names]
+            st.bar_chart(cust_data)
+
+        elif type_of_plot == 'line':
+            cust_data = df[selected_columns_names]
+            st.line_chart(cust_data)
+
+        # Custom Plot
+        elif type_of_plot:
+            cust_plot = df[selected_columns_names].plot(kind=type_of_plot)
+            st.write(cust_plot)
+            st.pyplot()
+
+    # Perform EDA using pandas-profiling
+    if st.checkbox("Perform EDA with pandas-profiling"):
+        st.subheader("Exploratory Data Analysis with pandas-profiling")
+        report = pandas_profiling.ProfileReport(df)
+        st_profile_report(report)
+
+    if st.button("Thanks"):
+        st.balloons()
+
+    st.sidebar.header("About")
+    st.sidebar.info("Aditya N Bhatt")
+    st.sidebar.text("231057017")
+    st.sidebar.text("AI & ML")
+    st.sidebar.text("MSIS")
+    github_repo = "https://github.com/adityab24840/EDA-and-DataVisualization/"
+    st.sidebar.markdown(f"[GitHub Repository]({github_repo})")
+    st.sidebar.text("Built with Streamlit")
 
 if __name__ == '__main__':
     main()
