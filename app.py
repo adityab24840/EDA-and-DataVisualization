@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import matplotlib
-import pandas_profiling 
+import pandas_profiling
 matplotlib.use('Agg')
 
 def main():
@@ -119,7 +119,7 @@ def main():
     if st.checkbox("Perform EDA with pandas-profiling"):
         st.subheader("Exploratory Data Analysis with pandas-profiling")
         report = pandas_profiling.ProfileReport(df)
-        st_profile_report(report)
+        st.write(report.to_html(), unsafe_allow_html=True)
 
     if st.button("Thanks"):
         st.balloons()
