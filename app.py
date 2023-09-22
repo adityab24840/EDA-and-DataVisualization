@@ -4,7 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from pandas_profiling import ProfileReport
+from pandas_profiling import ProfileReport as PandasProfileReport  # Modified import
 
 # Additional libraries for data preprocessing and machine learning
 from sklearn.model_selection import train_test_split
