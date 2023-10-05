@@ -1,148 +1,78 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
 import os
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pandas_profiling import ProfileReport as PandasProfileReport  # Modified import
-
-# Additional libraries for data preprocessing and machine learning
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+import streamlit as st
+from src.data_loader import DataLoader
+from src.data_visualizer import DataVisualizer
+from src.machine_learning_model import MachineLearningModel
+from src.interactive_widgets import InteractiveWidgets
+from src.about_Info import get_about_info
 
 def main():
-    """ Machine Learning DataSet Explorer & Data Visualization """
     st.title("ML DataSet Explorer & Data Visualization")
-    st.subheader("DataSet Explorer and Model Builder with Streamlit")
+    st.set_option('deprecation.showPyplotGlobalUse', False)
 
-    def file_selector(path='./datasets'):
-        files = os.listdir(path)
-        select_file = st.selectbox("Select a file(dataset)", files)
-        return os.path.join(path, select_file)
 
-    file = file_selector()
-    st.info("You selected {}".format(file))
+    # Main content
+    file_path = st.sidebar.selectbox("Select a file(dataset)", os.listdir('datasets'))
+    file_path = os.path.join('datasets', file_path)
+    if not file_path:
+        st.warning("Please select a dataset.")
+        return
 
-    # Read File .csv
-    df = pd.read_csv(file)
+    # Update the file path to include the 'datasets' folder
+    file_path = os.path.join('./datasets', file_path)
+    data_loader = DataLoader(file_path)
+    data_loader.load_data()
 
-    # Show Dataset
-    if st.checkbox('Show Dataset'):
-        st.write(df.head())
-
-    # Show Shape of Dataset
-    if st.checkbox("Shape of Dataset"):
-        st.write(df.shape)
-
-    # Show DataSet Column
-    if st.checkbox("Select Columns to Show"):
-        all_columns = df.columns.tolist()
-        select_columns = st.multiselect("Select", all_columns)
-        new_df = df[select_columns]
-        st.dataframe(new_df)
-
-    # Data Preprocessing Section
     st.subheader("Data Preprocessing")
-    target_col = st.selectbox("Select Target Column", all_columns)
+    preprocessing_method = st.selectbox("Select Data Preprocessing Method", ["None", "Handle Missing Values", "Encode Categorical Variables", "Scale/Normalize Features"])
 
-    # Handle missing values
-    if st.checkbox("Handle Missing Values"):
-        df.fillna(df.mean(), inplace=True)  # Example: Fill missing values with mean
+    if preprocessing_method == "Handle Missing Values":
+        missing_values_method = st.selectbox("Select Missing Value Handling Method", ["None", "Drop Rows", "Fill with Mean", "Fill with Median"])
+        if missing_values_method != "None":
+            data_loader.handle_missing_values(missing_values_method)
 
-    # Encode categorical variables
-    if st.checkbox("Encode Categorical Variables"):
-        cat_cols = [col for col in df.columns if df[col].dtype == 'object']
-        if cat_cols:
-            le = LabelEncoder()
-            for col in cat_cols:
-                df[col] = le.fit_transform(df[col])
+    if preprocessing_method == "Encode Categorical Variables":
+        encoding_method = st.selectbox("Select Encoding Method", ["None", "Label Encoding", "One-Hot Encoding"])
+        if encoding_method != "None":
+            data_loader.encode_categorical_variables(encoding_method)
 
-    # Model Building Section
-    st.subheader("Model Building")
+    if preprocessing_method == "Scale/Normalize Features":
+        scaling_method = st.selectbox("Select Scaling Method", ["None", "Standardization (Z-score)", "Min-Max Scaling"])
+        if scaling_method != "None":
+            data_loader.scale_normalize_features(scaling_method)
 
-    # Select features
-    feature_cols = [col for col in df.columns if col != target_col]
-    X = df[feature_cols]
-    y = df[target_col]
-
-    # Split dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Train a random forest classifier
-    if st.checkbox("Train Model"):
-        model = RandomForestClassifier()
-        model.fit(X_train, y_train)
-
-        # Make predictions
-        y_pred = model.predict(X_test)
-
-        # Evaluate the model
-        accuracy = accuracy_score(y_test, y_pred)
-        st.write(f"Model Accuracy: {accuracy:.2f}")
-
-        # Display classification report
-        st.write("Classification Report:")
-        st.text(classification_report(y_test, y_pred))
-
-    # Data Visualization Section
+    data_visualizer = DataVisualizer(data_loader.data)
     st.subheader("Data Visualization")
+    visualization_method = st.selectbox("Select Visualization Method", ["None", "Correlation Plot", "Pie Chart"])
 
-    # Correlation Plot
-    if st.checkbox("Correlation Plot[Seaborn]"):
-        st.write(sns.heatmap(df.corr(), annot=True))
-        st.pyplot()
+    if visualization_method == "Correlation Plot":
+        data_visualizer.plot_correlation()
 
-    # Histograms for numerical columns
-    if st.checkbox("Histograms"):
-        numerical_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        for col in numerical_cols:
-            st.subheader(f"Histogram for {col}")
-            plt.hist(df[col], bins=20)
-            st.pyplot()
+    if visualization_method == "Pie Chart":
+        data_visualizer.plot_pie_chart()
 
-    # Pie Chart for categorical target
-    if df[target_col].dtype == 'object':
-        if st.checkbox("Pie Plot"):
-            st.write(df[target_col].value_counts().plot.pie(autopct="%1.1f%%"))
-            st.pyplot()
+    ml_model = MachineLearningModel(data_loader.data)
+    st.subheader("Machine Learning Integration")
+    if st.checkbox("Train Machine Learning Model"):
+        target_column = st.selectbox("Select Target Column", data_loader.data.columns.tolist())
+        ml_model.prepare_data(target_column)
+        ml_model.train_model()
+        ml_model.evaluate_model()
 
-    # Customizable Plot
-    st.subheader("Customizable Plot")
-    type_of_plot = st.selectbox("Select Type of Plot", ["area", "bar", "line", "hist", "box", "kde"])
-    selected_columns_names = st.multiselect("Select Columns To Plot", all_columns)
-
-    if st.button("Generate Plot"):
-        st.success(f"Generating Customizable Plot of {type_of_plot} for {selected_columns_names}")
-        if selected_columns_names:
-            if type_of_plot == 'area':
-                st.area_chart(df[selected_columns_names])
-            elif type_of_plot == 'bar':
-                st.bar_chart(df[selected_columns_names])
-            elif type_of_plot == 'line':
-                st.line_chart(df[selected_columns_names])
-            elif type_of_plot == 'hist':
-                st.write(df[selected_columns_names].hist(bins=20))
-                st.pyplot()
-            elif type_of_plot == 'box':
-                st.write(df[selected_columns_names].plot(kind='box'))
-                st.pyplot()
-            elif type_of_plot == 'kde':
-                st.write(df[selected_columns_names].plot(kind='kde'))
-                st.pyplot()
-
-    if st.button("Thanks"):
-        st.balloons()
+    interactive_widgets = InteractiveWidgets()
+    st.subheader("Interactive Widgets")
+    interactive_widgets.add_range_slider()
 
     st.sidebar.header("About")
-    st.sidebar.info("Aditya N Bhatt")
-    st.sidebar.text("231057017")
-    st.sidebar.text("AI & ML")
-    st.sidebar.text("MSIS")
-    github_repo = "https://github.com/adityab24840/EDA-and-DataVisualization/"
-    st.sidebar.markdown(f"[GitHub Repository]({github_repo})")
+    about_info = get_about_info()
+    st.sidebar.write(f"Name: {about_info['Name']}")
+    st.sidebar.write(f"Student ID: {about_info['Student ID']}")
+    st.sidebar.write(f"Major: {about_info['Major']}")
+    st.sidebar.write(f"College: {about_info['College']}")
+    st.sidebar.text("2023-25")
+    st.sidebar.markdown(f"GitHub Repository: [GitHub Repo]({about_info['GitHub Repo']})")
     st.sidebar.text("Built with Streamlit")
+
 
 if __name__ == '__main__':
     main()
