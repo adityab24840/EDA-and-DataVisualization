@@ -66,11 +66,11 @@ def main():
         st.write(df.describe())
 
     # Plot and Visualization
-    st.subheader("Data Visulaization")
-    #Corelation
-    #Seaborn Plot
+    st.subheader("Data Visualization")
+    # Corelation
+    # Seaborn Plot
     if st.checkbox("Correlation Plot[Seaborn]"):
-        st.write(sns.heatmap(df.corr(),annot=True))
+        st.write(sns.heatmap(df.corr(), annot=True))
         st.pyplot()
 
     # Pie Chart
@@ -78,32 +78,32 @@ def main():
         all_columns_names = df.columns.tolist()
         if st.button("Generate Pie Plot"):
             st.success("Generating A Pie Plot")
-            st.write(df.iloc[:,-1].value_counts().plot.pie(autopct="%1.1f%%"))
+            st.write(df.iloc[:, -1].value_counts().plot.pie(autopct="%1.1f%%"))
             st.pyplot()
 
     # Count Plot
     if st.checkbox("Plot of Value Counts"):
         st.text("Value Counts By Target")
         all_columns_names = df.columns.tolist()
-        primary_col = st.selectbox("Primary Columm to GroupBy",all_columns_names)
-        selected_columns_names = st.multiselect("Select Columns",all_columns_names)
+        primary_col = st.selectbox("Primary Column to GroupBy", all_columns_names)
+        selected_columns_names = st.multiselect("Select Columns", all_columns_names)
         if st.button("Plot"):
             st.text("Generate Plot")
             if selected_columns_names:
                 vc_plot = df.groupby(primary_col)[selected_columns_names].count()
             else:
-                vc_plot = df.iloc[:,-1].value_counts()
+                vc_plot = df.iloc[:, -1].value_counts()
             st.write(vc_plot.plot(kind="bar"))
             st.pyplot()
 
     # Customizable Plot
     st.subheader("Customizable Plot")
     all_columns_names = df.columns.tolist()
-    type_of_plot = st.selectbox("Select Type of Plot",["area","bar","line","hist","box","kde"])
-    selected_columns_names = st.multiselect("Select Columns To Plot",all_columns_names)
+    type_of_plot = st.selectbox("Select Type of Plot", ["area", "bar", "line", "hist", "box", "kde"])
+    selected_columns_names = st.multiselect("Select Columns To Plot", all_columns_names)
 
     if st.button("Generate Plot"):
-        st.success("Generating Customizable Plot of {} for {}".format(type_of_plot,selected_columns_names))
+        st.success("Generating Customizable Plot of {} for {}".format(type_of_plot, selected_columns_names))
 
         # Plot By Streamlit
         if type_of_plot == 'area':
@@ -120,16 +120,21 @@ def main():
 
         # Custom Plot
         elif type_of_plot:
-            cust_plot= df[selected_columns_names].plot(kind=type_of_plot)
+            cust_plot = df[selected_columns_names].plot(kind=type_of_plot)
             st.write(cust_plot)
             st.pyplot()
 
     if st.button("Thanks"):
         st.balloons()
 
-    st.sidebar.header("About")
+    # Display About Information in Main Content Area
     about_info = get_about_info()
-
+    st.header("About")
+    st.write(f"Name: {about_info['Name']}")
+    st.write(f"Student ID: {about_info['Student ID']}")
+    st.write(f"Major: {about_info['Major']}")
+    st.write(f"Program: {about_info['Program']}")
+    st.write(f"GitHub Repository: [GitHub Repo]({about_info['GitHub Repo']})")
 
 if __name__ == '__main__':
     main()
