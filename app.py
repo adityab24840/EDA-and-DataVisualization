@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
-
+from about_Info import get_about_info
 
 def main():
     """ Machine Learning DataSet Explorer & Data Visualization """
@@ -118,7 +118,7 @@ def main():
             cust_data = df[selected_columns_names]
             st.line_chart(cust_data)
 
-		# Custom Plot
+        # Custom Plot
         elif type_of_plot:
             cust_plot= df[selected_columns_names].plot(kind=type_of_plot)
             st.write(cust_plot)
@@ -127,15 +127,9 @@ def main():
     if st.button("Thanks"):
         st.balloons()
 
-    
     st.sidebar.header("About")
-    st.sidebar.info("Aditya N Bhatt")
-    st.sidebar.text("231057017")
-    st.sidebar.text("AI & ML")
-    st.sidebar.text("MSIS")
-    github_repo = "https://github.com/adityab24840/EDA-and-DataVisualization/" 
-    st.sidebar.markdown(f"[GitHub Repository]({github_repo})")	
-    st.sidebar.text("Built with Streamlit")
+    about_info = get_about_info()
+
 
 if __name__ == '__main__':
     main()
