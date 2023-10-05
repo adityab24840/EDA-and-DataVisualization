@@ -127,14 +127,17 @@ def main():
     if st.button("Thanks"):
         st.balloons()
 
-    # Display About Information in Main Content Area
+    # Display About Information in Sidebar Area
+    st.sidebar.header("About")
     about_info = get_about_info()
-    st.header("About")
-    st.write(f"Name: {about_info['Name']}")
-    st.write(f"Student ID: {about_info['Student ID']}")
-    st.write(f"Major: {about_info['Major']}")
-    st.write(f"Program: {about_info['Program']}")
-    st.write(f"GitHub Repository: [GitHub Repo]({about_info['GitHub Repo']})")
+    st.sidebar.write(f"Name: {about_info['Name']}")
+    st.sidebar.write(f"Student ID: {about_info['Student ID']}")
+    st.sidebar.write(f"Major: {about_info['Major']}")
+    st.sidebar.write(f"College: {about_info['College']}")
+    st.sidebar.text("2023-25")
+    st.sidebar.markdown(f"GitHub Repository: [GitHub Repo]({about_info['GitHub Repo']})")
+    st.sidebar.text("Built with Streamlit")
+
 
 if __name__ == '__main__':
     main()
