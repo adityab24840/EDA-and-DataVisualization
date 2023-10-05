@@ -12,6 +12,8 @@ def main():
     """ Machine Learning DataSet Explorer & Data Visualization """
     st.title("ML DataSet Explorer & Data Visualization")
     st.subheader("DataSet Explorer built with Streamlit")
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+
 
     def file_selector(path='./datasets'):
         files = os.listdir(path)
@@ -133,7 +135,7 @@ def main():
     st.sidebar.write(f"Name: {about_info['Name']}")
     st.sidebar.write(f"Student ID: {about_info['Student ID']}")
     st.sidebar.write(f"Major: {about_info['Major']}")
-    st.sidebar.write(f"College: {about_info['College']}")
+    st.sidebar.write(f"Program: {about_info['Program']}")
     st.sidebar.text("2023-25")
     st.sidebar.markdown(f"GitHub Repository: [GitHub Repo]({about_info['GitHub Repo']})")
     st.sidebar.text("Built with Streamlit")
