@@ -10,14 +10,17 @@ def main():
     st.title("ML DataSet Explorer & Data Visualization")
     st.set_option('deprecation.showPyplotGlobalUse', False)
 
-
+    def file_selector(path='./datasets'):
+        files = os.listdir(path)
+        file_path = st.selectbox("Select a file(dataset)", files)
+        return os.path.join(path, file_path)
+    
     # Main content
-    file_path = st.sidebar.selectbox("Select a file(dataset)", os.listdir('datasets'))
-    file_path = os.path.join('datasets', file_path)
-    if not file_path:
-        st.warning("Please select a dataset.")
-        return
 
+   
+
+    data_loader = DataLoader(file_path)
+    data_loader.load_data()
     # Update the file path to include the 'datasets' folder
     file_path = os.path.join('./datasets', file_path)
     data_loader = DataLoader(file_path)
